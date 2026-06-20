@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Final Choice</title>
+<style>
+/* ─── GOOGLE FONTS (inline @import so no external link blocking) ─── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500&display=swap');
+
+/* ─── RESET ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ─── TOKENS ─── */
+:root{
+  --void:#060714;
+  --rose:#c2607a;--rose-l:#e8899a;
+  --gold:#f5c842;--gold-s:#fad97a;
+  --mist:#e8e0f0;
+  --cyan:#7eb8d4;--cyan-s:#a8d4e8;
+  --green:#4caf78;
+  --glass:rgba(255,255,255,0.06);
+  --gb:rgba(255,255,255,0.12);
+  --fd:'Playfair Display',Georgia,serif;
+  --fb:'Inter',sans-serif;
+}
+
+/* ─── BASE ─── */
+html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:var(--mist);font-family:var(--fb);-webkit-font-smoothing:antialiased}
+
+/* ─── CANVAS ─── */
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ─── BG LAYER ─── */
+#bg{position:fixed;inset:0;z-index:0;transition:background 2.5s ease}
+.bgs{background:radial-gradient(ellipse at 30% 20%,#1a1a3e,#0a0b1e 40%,#060410)}
+.bgm{background:radial-gradient(ellipse at 60% 40%,#1d1245,#0d0b28 50%,#060714)}
+.bgh{background:radial-gradient(ellipse at 50% 30%,#1a2040,#0f1630 50%,#070b1e)}
+.bgr{background:radial-gradient(ellipse at 50% 10%,#3a1a30,#231028 30%,#120820 70%,#06091a)}
+.bgc{background:radial-gradient(ellipse at 50% 0%,#2e0e42,#180628 40%,#080416)}
+.bgx{background:radial-gradient(ellipse at 50% 50%,#1a0835,#0e0420 50%,#040210)}
+.bgy{background:radial-gradient(ellipse at 50% 0%,#3d1a00,#4a2200 20%,#241200 50%,#080610)}
+.bgn{background:radial-gradient(ellipse at 30% 20%,#0a1a2e,#06101e 50%,#030810)}
+
+/* ─── OVERLAY (transition) ─── */
+#ov{position:fixed;inset:0;z-index:900;background:#000;opacity:0;pointer-events:none;transition:opacity .55s ease}
+#ov.dark{opacity:1;pointer-events:all}
+
+/* ─── SLOW-MO BLUR ─── */
+#slomo{position:fixed;inset:0;z-index:800;backdrop-filter:blur(4px) saturate(.65);-webkit-backdrop-filter:blur(4px) saturate(.65);opacity:0;pointer-events:none;transition:opacity 1.4s ease}
+#slomo.on{opacity:1}
+
+/* ─── GAME WRAPPER ─── */
+#game{position:fixed;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+/* ─── SCENES ─── */
+.sc{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;overflow-y:auto;overflow-x:hidden;
+  opacity:0;pointer-events:none;
+}
+.sc.on{opacity:1;pointer-events:all}
+
+/* ─── LOADING ─── */
+#s-load{background:var(--void);gap:28px;text-align:center;justify-content:center}
+.l-title{font-family:var(--fd);font-style:italic;font-size:clamp(2rem,7vw,3.6rem);letter-spacing:.04em;animation:breathe 3s ease-in-out infinite}
+.l-sub{font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(232,224,240,.38)}
+.l-bar-w{width:min(260px,65vw);height:2px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.l-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .3s ease}
+.l-msg{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(232,224,240,.28);min-height:1rem}
+.l-heart{font-size:2rem;animation:hb 1.3s ease-in-out infinite}
+
+@keyframes breathe{0%,100%{opacity:.65}50%{opacity:1}}
+@keyframes hb{0%,100%{transform:scale(1)}14%{transform:scale(1.22)}28%{transform:scale(1)}42%{transform:scale(1.12)}56%{transform:scale(1)}}
+
+/* ─── CARD ─── */
+.card{
+  background:var(--glass);border:1px solid var(--gb);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-radius:18px;padding:clamp(20px,5vw,44px);
+  max-width:550px;width:100%;
+  box-shadow:0 8px 40px rgba(0,0,0,.55);
+  position:relative;overflow:hidden;
+  /* allow card to scroll on very small phones */
+  max-height:calc(100vh - 40px);overflow-y:auto;
+}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)}
+
+/* ─── CHROME ─── */
+#mbtn{position:fixed;top:16px;right:16px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--glass);border:1px solid var(--gb);backdrop-filter:blur(10px);color:var(--mist);font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;transition:background .3s,transform .2s}
+#mbtn:hover{background:rgba(255,255,255,.13);transform:scale(1.08)}
+#mbtn.on{display:flex}
+
+#hmeter{position:fixed;top:16px;left:16px;z-index:999;display:none;flex-direction:column;gap:5px}
+#hmeter.on{display:flex}
+.hl{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,224,240,.4)}
+.hbw{width:100px;height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.hb{height:100%;width:0%;background:linear-gradient(90deg,var(--rose),var(--gold),var(--green));transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+.hp{font-size:.68rem;color:rgba(232,224,240,.45)}
+
+#dots{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:none;gap:6px;z-index:999}
+#dots.on{display:flex}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(232,224,240,.18);transition:background .35s,transform .25s}
+.dot.cur{background:var(--rose);transform:scale(1.5)}
+.dot.was{background:rgba(232,224,240,.45)}
+
+/* ─── TYPOGRAPHY ─── */
+.lbl{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(232,224,240,.32);margin-bottom:14px}
+.ttl{font-family:var(--fd);font-style:italic;font-size:clamp(1.5rem,5vw,2.4rem);line-height:1.25;color:var(--mist);margin-bottom:14px}
+.nar{font-family:var(--fd);font-size:clamp(.92rem,2.8vw,1.12rem);line-height:1.9;color:rgba(232,224,240,.82);font-style:italic;margin-bottom:16px}
+.dlg{font-family:var(--fb);font-size:clamp(.88rem,2.5vw,1rem);line-height:1.85;color:rgba(232,224,240,.88);margin-bottom:16px}
+.who{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--rose-l);margin-bottom:7px}
+.div{width:54px;height:1px;background:linear-gradient(90deg,transparent,rgba(232,224,240,.28),transparent);margin:14px auto}
+
+/* ─── ANIMATIONS (reveal) ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .75s ease forwards}
+.d1{animation-delay:.25s;opacity:0}.d2{animation-delay:.5s;opacity:0}.d3{animation-delay:.75s;opacity:0}
+.d4{animation-delay:1s;opacity:0}.d5{animation-delay:1.3s;opacity:0}.d6{animation-delay:1.6s;opacity:0}
+
+.rl{display:block;opacity:0;transform:translateY(14px);animation:fadeUp .7s ease forwards}
+
+/* ─── BUTTONS ─── */
+.bp{display:inline-block;padding:12px 32px;background:linear-gradient(135deg,var(--rose),#9b3a55);color:#fff;font-family:var(--fb);font-size:.85rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;border:none;border-radius:50px;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 18px rgba(194,96,122,.38);margin-top:6px}
+.bp:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(194,96,122,.52)}
+.bp:active{transform:translateY(0)}
+.bg2{display:inline-block;padding:11px 26px;background:transparent;color:rgba(232,224,240,.55);font-family:var(--fb);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(232,224,240,.2);border-radius:50px;cursor:pointer;transition:border-color .2s,color .2s;margin-top:6px}
+.bg2:hover{border-color:rgba(232,224,240,.48);color:rgba(232,224,240,.85)}
+.brow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}
+
+/* ─── SILHOUETTES ─── */
+.sil-wrap{position:relative;height:110px;width:100%;margin-bottom:12px;display:flex;align-items:flex-end;justify-content:center}
+@keyframes breathSil{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+@keyframes riseUp{0%{transform:translateY(18px) scale(.94);opacity:.25}100%{transform:translateY(0) scale(1);opacity:.72}}
+@keyframes walkTog{0%{transform:translateX(0)}100%{transform:translateX(18px)}}
+@keyframes girlAway{0%{transform:translateX(0) scale(1);opacity:.55}100%{transform:translateX(120px) scale(.7);opacity:0}}
+@keyframes boyFade{0%{transform:scale(1);opacity:.5}100%{transform:scale(.55);opacity:.15}}
+
+/* ─── CHAPTER CARDS ─── */
+.ch-card{padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;margin-bottom:9px;cursor:pointer;transition:background .22s,border-color .22s,transform .18s;display:flex;align-items:center;gap:12px}
+.ch-card:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);transform:translateX(3px)}
+.ch-card.done{background:rgba(76,175,120,.1);border-color:rgba(76,175,120,.28);cursor:default}
+.ch-card.done:hover{transform:none}
+.ch-icon{font-size:1.3rem;flex-shrink:0}
+.ch-txt{flex:1}
+.ch-name{font-size:.92rem;font-weight:500;color:var(--mist)}
+.ch-desc{font-size:.75rem;color:rgba(232,224,240,.42);margin-top:2px}
+.ch-ck{font-size:.95rem;color:var(--green);opacity:0;transition:opacity .3s;flex-shrink:0}
+.ch-card.done .ch-ck{opacity:1}
+
+/* ─── CHOICE SCREEN ─── */
+.ring{position:absolute;top:50%;left:50%;width:180px;height:180px;margin:-90px 0 0 -90px;border-radius:50%;border:1px solid rgba(194,96,122,.28);animation:ringPulse 1.6s ease-out infinite;pointer-events:none;z-index:0}
+.ring:nth-child(2){animation-delay:.55s}
+.ring:nth-child(3){animation-delay:1.1s}
+@keyframes ringPulse{0%{transform:scale(.85);opacity:.65}100%{transform:scale(2.6);opacity:0}}
+
+.cpair{display:flex;gap:44px;align-items:center;justify-content:center;margin:20px 0;position:relative;z-index:2}
+.cbtn{width:130px;height:130px;border-radius:50%;border:2px solid;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-family:var(--fb);font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;transition:transform .22s,box-shadow .22s;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);position:relative;overflow:hidden}
+.cbtn .ci{font-size:2.2rem;display:block}
+.cbtn::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.1),transparent 70%);opacity:0;transition:opacity .3s}
+.cbtn:hover{transform:scale(1.09)}
+.cbtn:hover::after{opacity:1}
+.cyes{background:radial-gradient(circle,rgba(194,96,122,.22),rgba(194,96,122,.06));border-color:var(--rose);color:var(--rose-l);box-shadow:0 0 36px rgba(194,96,122,.22)}
+.cyes:hover{box-shadow:0 0 55px rgba(194,96,122,.48)}
+.cno{background:radial-gradient(circle,rgba(126,184,212,.18),rgba(126,184,212,.04));border-color:var(--cyan);color:var(--cyan-s);box-shadow:0 0 36px rgba(126,184,212,.14)}
+.cno:hover{box-shadow:0 0 55px rgba(126,184,212,.32)}
+
+/* ─── CONFESSION LINES ─── */
+.cfl{display:block;font-family:var(--fd);font-size:clamp(.9rem,2.6vw,1.08rem);font-style:italic;line-height:1.95;color:rgba(232,224,240,.88);opacity:0;transform:translateY(9px);transition:opacity .85s ease,transform .85s ease;margin-bottom:2px}
+.cfl.vis{opacity:1;transform:translateY(0)}
+
+/* ─── ENDING ─── */
+.etitle{font-family:var(--fd);font-style:italic;font-size:clamp(1.6rem,5vw,2.6rem);text-align:center;line-height:1.3;margin:14px 0 6px}
+.esub{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(232,224,240,.36);text-align:center}
+.fmsg{font-family:var(--fd);font-style:italic;font-size:clamp(.88rem,2.5vw,1.02rem);line-height:1.95;color:rgba(232,224,240,.7);text-align:center;margin:16px 0}
+
+/* ─── GLOW HELPERS ─── */
+.gr{color:var(--rose-l);text-shadow:0 0 28px rgba(194,96,122,.45)}
+.gg{color:var(--gold-s);text-shadow:0 0 28px rgba(245,200,66,.38)}
+.gc{color:var(--cyan-s);text-shadow:0 0 28px rgba(126,184,212,.38)}
+
+/* ─── MOBILE ─── */
+@media(max-width:480px){
+  .card{padding:18px 16px;border-radius:14px}
+  .cbtn{width:112px;height:112px}
+  .cpair{gap:24px}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<div id="bg" class="bgs"></div>
+<canvas id="cvs"></canvas>
+<div id="ov"></div>
+<div id="slomo"></div>
+
+<!-- CHROME -->
+<button id="mbtn" title="Toggle music (placeholder)">♪</button>
+<div id="hmeter">
+  <span class="hl">Healing</span>
+  <div class="hbw"><div class="hb" id="hfill"></div></div>
+  <span class="hp" id="hpct">0%</span>
+</div>
+<div id="dots"></div>
+
+<!-- ═══════════════════ GAME ═══════════════════ -->
+<div id="game">
+
+<!-- LOADING -->
+<div class="sc on" id="s-load">
+  <div class="l-heart">🌧</div>
+  <div class="l-title">The Final Choice</div>
+  <div class="l-sub">An Emotional Interactive Story</div>
+  <div class="l-bar-w"><div class="l-bar" id="lbar"></div></div>
+  <div class="l-msg" id="lmsg">Loading your story…</div>
+</div>
+
+<!-- SCENE 1 – THE STORM -->
+<div class="sc" id="s1">
+  <div class="card">
+    <div class="lbl fu">Chapter I — The Storm</div>
+    <div class="sil-wrap">
+      <svg viewBox="0 0 60 100" fill="none" style="width:55px;height:95px;animation:breathSil 4s ease-in-out infinite">
+        <ellipse cx="30" cy="18" rx="10" ry="11" fill="rgba(232,224,240,.48)"/>
+        <path d="M20 29C20 52 16 66 14 82c8-2 24-2 32 0C44 66 40 52 40 29Z" fill="rgba(232,224,240,.38)"/>
+        <path d="M14 82 10 100M46 82 50 100" stroke="rgba(232,224,240,.38)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M20 38C13 50 10 58 12 63M40 38C47 50 50 58 48 63" stroke="rgba(232,224,240,.45)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M20 12C18 3 28 2 30 2s12 1 10 10" stroke="rgba(232,224,240,.38)" stroke-width="3" fill="none"/>
+        <ellipse cx="26" cy="22" rx="1.4" ry="2.4" fill="rgba(126,184,212,.65)"/>
+      </svg>
+    </div>
+    <div class="nar">
+      <span class="rl d1">Life pushed her down.</span>
+      <span class="rl d2">Not because she deserved it.</span>
+      <span class="rl d3">But because someone chose to hurt her.</span>
+    </div>
+    <div class="div"></div>
+    <div class="nar d4 fu" style="font-size:.88rem;color:rgba(232,224,240,.5)">She sat in the rain — not waiting to be saved.<br>Just tired of pretending she was okay.</div>
+    <div class="brow"><button class="bp d5 fu" onclick="go('s2')">Continue →</button></div>
+  </div>
+</div>
+
+<!-- SCENE 2 – THE BOY ARRIVES -->
+<div class="sc" id="s2">
+  <div class="card">
+    <div class="lbl fu">Chapter II — Someone Stayed</div>
+    <div class="sil-wrap" style="height:120px">
+      <!-- girl -->
+      <svg viewBox="0 0 60 100" fill="none" style="position:absolute;left:32%;bottom:0;width:50px;height:86px;animation:breathSil 4s ease-in-out infinite">
+        <ellipse cx="30" cy="18" rx="10" ry="11" fill="rgba(232,224,240,.42)"/>
+        <path d="M20 29C20 52 16 66 14 82c8-2 24-2 32 0C44 66 40 52 40 29Z" fill="rgba(232,224,240,.32)"/>
+        <path d="M14 82 10 100M46 82 50 100" stroke="rgba(232,224,240,.32)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M20 12C18 3 28 2 30 2s12 1 10 10" stroke="rgba(232,224,240,.32)" stroke-width="3" fill="none"/>
+      </svg>
+      <!-- boy -->
+      <svg viewBox="0 0 60 100" fill="none" style="position:absolute;left:54%;bottom:0;width:48px;height:80px;animation:breathSil 4.4s ease-in-out infinite .4s">
+        <ellipse cx="30" cy="16" rx="9" ry="10" fill="rgba(194,96,122,.48)"/>
+        <rect x="21" y="27" width="18" height="48" rx="4" fill="rgba(194,96,122,.34)"/>
+        <path d="M21 75 16 100M39 75 44 100" stroke="rgba(194,96,122,.38)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M21 35 12 54M39 35 48 54" stroke="rgba(194,96,122,.38)" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="nar">
+      <span class="rl d1">He didn't come to save her.</span>
+      <span class="rl d2">He didn't come to own her.</span>
+      <span class="rl d3" style="color:var(--mist)">He simply… stayed.</span>
+    </div>
+    <div class="div"></div>
+    <div class="who d4 fu">He said</div>
+    <div class="dlg"><span class="rl d4">"You don't have to talk. I'm just going to sit here with you."</span></div>
+    <div class="nar d5 fu" style="font-size:.85rem;color:rgba(232,224,240,.42)">And that was enough.</div>
+    <div class="brow"><button class="bp d6 fu" onclick="go('s3')">The Journey Begins →</button></div>
+  </div>
+</div>
+
+<!-- SCENE 3 – HEALING CHAPTERS -->
+<div class="sc" id="s3">
+  <div class="card">
+    <div class="lbl fu">Chapter III — The Healing Journey</div>
+    <div class="ttl gr fu d1">One Day at a Time</div>
+    <div class="nar fu d2" style="font-size:.88rem">Every chapter is a moment he chose to show up.<br>Complete all four to see her rise.</div>
+    <div id="ch-list" style="margin-top:10px"></div>
+    <div class="brow"><button class="bp" id="btn-rise" style="display:none" onclick="go('s4')">She's Ready →</button></div>
+  </div>
+</div>
+
+<!-- SCENE 3b – CHAPTER INTERACTION -->
+<div class="sc" id="s3b">
+  <div class="card">
+    <div class="lbl" id="ci-lbl">Moment</div>
+    <div class="ttl" id="ci-ttl" style="font-size:1.4rem"></div>
+    <div class="nar" id="ci-nar" style="font-size:.9rem"></div>
+    <div class="who" id="ci-who" style="display:none">He said</div>
+    <div class="dlg" id="ci-dlg"></div>
+    <div id="ci-ch" style="display:flex;flex-direction:column;gap:9px;margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- SCENE 4 – DAWN -->
+<div class="sc" id="s4">
+  <div class="card">
+    <div class="lbl fu">Chapter IV — The Dawn</div>
+    <div class="sil-wrap" style="height:130px">
+      <svg id="sil-rise" viewBox="0 0 60 100" fill="none" style="width:52px;height:88px;animation:riseUp 2s ease forwards">
+        <ellipse cx="30" cy="16" rx="10" ry="11" fill="rgba(245,200,66,.6)"/>
+        <path d="M20 27C20 52 18 70 16 90c8-2 20-2 28 0C42 70 40 52 40 27Z" fill="rgba(245,200,66,.44)"/>
+        <path d="M16 90 12 100M44 90 48 100" stroke="rgba(245,200,66,.48)" stroke-width="5" stroke-linecap="round"/>
+        <!-- arms open -->
+        <path d="M20 38 8 30M40 38 52 30" stroke="rgba(245,200,66,.52)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M20 12C18 3 28 2 30 2s12 1 10 10" stroke="rgba(245,200,66,.45)" stroke-width="3" fill="none"/>
+      </svg>
+    </div>
+    <div class="nar">
+      <span class="rl d1">The rain stopped.</span>
+      <span class="rl d2" style="color:var(--gold-s)">Light came — slow and golden.</span>
+      <span class="rl d3">She stood up.</span>
+      <span class="rl d4">Not for him. Not for the world.</span>
+      <span class="rl d5" style="color:var(--gold-s)">For herself.</span>
+    </div>
+    <div class="div"></div>
+    <div class="dlg fu d6" style="text-align:center;color:rgba(232,224,240,.5);font-size:.86rem">And somewhere nearby, he smiled.</div>
+    <div class="brow"><button class="bp d6 fu" onclick="go('s5')">The Confession →</button></div>
+  </div>
+</div>
+
+<!-- SCENE 5 – CONFESSION -->
+<div class="sc" id="s5">
+  <div class="card" style="max-width:510px">
+    <div class="lbl fu">Chapter V — The Truth</div>
+    <div class="who fu d1">He said, slowly</div>
+    <div id="cf-text" style="margin:14px 0;min-height:140px">
+      <span class="cfl" data-i="0">"When I met you, you were broken."</span>
+      <span class="cfl" data-i="1" style="margin-top:10px">"I stayed because I cared."</span>
+      <span class="cfl" data-i="2" style="margin-top:14px;color:var(--rose-l)">"Somewhere along the way…"</span>
+      <span class="cfl" data-i="3" style="color:var(--rose-l)">"my care became love."</span>
+      <span class="cfl" data-i="4" style="margin-top:14px;color:rgba(232,224,240,.72)">"But your happiness matters more than my feelings."</span>
+      <span class="cfl" data-i="5" style="margin-top:14px;font-size:1.04rem">"So today…"</span>
+      <span class="cfl" data-i="6" style="font-size:1.08rem;color:var(--gold-s)">"the choice is yours."</span>
+    </div>
+    <div class="brow" id="cf-btn" style="display:none">
+      <button class="bp" onclick="go('s-choice')">Face the Choice →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE CHOICE -->
+<div class="sc" id="s-choice">
+  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  <div class="card" style="max-width:460px;text-align:center;position:relative;z-index:2">
+    <div class="lbl fu" style="text-align:center">The Final Choice</div>
+    <div class="ttl fu d1" style="text-align:center;font-size:clamp(1.2rem,4vw,1.9rem)">What does your heart say?</div>
+    <div class="nar fu d2" style="text-align:center;font-size:.86rem">He is waiting.<br>Not with expectation — with love.</div>
+    <div class="cpair fu d3">
+      <button class="cbtn cyes" onclick="choose('yes')"><span class="ci">❤️</span><span>YES</span></button>
+      <button class="cbtn cno"  onclick="choose('no')"><span class="ci">🌙</span><span>NO</span></button>
+    </div>
+    <div class="div"></div>
+    <p class="fu d5" style="font-size:.7rem;color:rgba(232,224,240,.25);font-style:italic">There is no wrong answer here.</p>
+  </div>
+</div>
+
+<!-- SCENE YES -->
+<div class="sc" id="s-yes">
+  <div class="card" style="max-width:510px;text-align:center">
+    <div class="lbl fu" style="text-align:center">Ending — Together</div>
+    <div class="sil-wrap" style="height:96px">
+      <svg viewBox="0 0 130 100" fill="none" style="width:130px;height:96px;animation:walkTog 2.5s ease-in-out infinite alternate">
+        <!-- girl -->
+        <ellipse cx="44" cy="14" rx="9" ry="10" fill="rgba(245,200,66,.55)"/>
+        <path d="M35 24C35 48 32 68 30 88c8-2 20-2 28 0C56 68 53 48 53 24Z" fill="rgba(245,200,66,.4)"/>
+        <path d="M30 88 26 100M58 88 62 100" stroke="rgba(245,200,66,.4)" stroke-width="5" stroke-linecap="round"/>
+        <!-- boy -->
+        <ellipse cx="86" cy="14" rx="9" ry="10" fill="rgba(194,96,122,.55)"/>
+        <rect x="77" y="25" width="18" height="46" rx="3" fill="rgba(194,96,122,.4)"/>
+        <path d="M77 71 72 100M95 71 100 100" stroke="rgba(194,96,122,.4)" stroke-width="5" stroke-linecap="round"/>
+        <!-- held hands -->
+        <path d="M53 44C62 42 68 42 77 44" stroke="rgba(255,210,110,.65)" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="etitle gg fu d1">"Together We Rise"</div>
+    <div class="div"></div>
+    <div class="fmsg fu d2">She took his hand.<br>Not because she needed someone.<br>But because she chose <em>him</em>.</div>
+    <div class="esub fu d3">And they walked into the sunrise together.</div>
+    <div class="brow" style="justify-content:center;margin-top:20px">
+      <button class="bp fu d4" onclick="go('s-credits')">Credits →</button>
+      <button class="bg2 fu d4" onclick="replay()">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE NO -->
+<div class="sc" id="s-no">
+  <div class="card" style="max-width:530px">
+    <div class="lbl fu">Ending — A Promise</div>
+    <div id="no-story" style="margin:6px 0 12px;min-height:160px"></div>
+    <div id="no-end" style="display:none">
+      <div class="div"></div>
+      <div class="etitle gc">"A Promise Without Conditions"</div>
+      <div class="fmsg" style="font-size:.9rem;margin-top:12px">
+        Real love is not about making someone stay.<br><br>
+        It's about wanting the best for them,<br>
+        even when their choice doesn't include you.
+      </div>
+      <div class="brow" style="justify-content:center">
+        <button class="bp" onclick="go('s-credits')">Credits →</button>
+        <button class="bg2" onclick="replay()">Play Again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE CREDITS -->
+<div class="sc" id="s-credits">
+  <div class="card" style="max-width:430px;text-align:center">
+    <div style="font-size:2rem;margin-bottom:8px">🌸</div>
+    <div class="ttl fu" style="font-size:1.5rem">The Final Choice</div>
+    <div class="esub fu d1" style="margin-bottom:18px">An Interactive Short Film</div>
+    <div class="div"></div>
+    <div class="nar fu d2" style="font-size:.88rem;color:rgba(232,224,240,.6);margin-top:14px">
+      "Some stories are not about getting the ending you wanted.<br>
+      They're about becoming someone worthy of love —<br>
+      first, by yourself."
+    </div>
+    <div class="div"></div>
+    <div class="l-sub fu d3" style="margin-top:2px">Story &amp; Design — For every soul who stayed</div>
+    <div class="l-sub fu d4" style="margin-top:4px">Built with: HTML · CSS · JavaScript · Love</div>
+    <div id="ebadge" style="display:none;margin-top:18px;padding:9px 16px;border-radius:8px;font-size:.76rem"></div>
+    <div class="brow" style="justify-content:center;margin-top:18px">
+      <button class="bp fu d5" onclick="replay()">Experience Again</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /game -->
+
+<script>
+/* ════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════ */
+const G = {
+  scene: 's-load',
+  healed: [],
+  choice: null,
+  transitioning: false,
+};
+const SCENE_ORDER = ['s1','s2','s3','s3b','s4','s5','s-choice'];
+
+/* ════════════════════════════════════════════
+   PARTICLES
+════════════════════════════════════════════ */
+const cvs = document.getElementById('cvs');
+const cx  = cvs.getContext('2d');
+let pts = [], pMode = 'rain';
+
+function rsz(){ cvs.width = innerWidth; cvs.height = innerHeight; }
+rsz(); window.addEventListener('resize', rsz);
+
+class P {
+  constructor(m){ this.m=m; this.init(); }
+  init(){
+    const W=cvs.width,H=cvs.height;
+    if(this.m==='rain'||this.m==='softrain'){
+      this.x=Math.random()*W; this.y=Math.random()*H*.35-60;
+      this.vx=-.6+Math.random()*.25;
+      this.vy=(this.m==='rain'?8:3)+Math.random()*(this.m==='rain'?6:3);
+      this.len=(this.m==='rain'?9:5)+Math.random()*8;
+      this.a=this.m==='rain'?.1+Math.random()*.22:.05+Math.random()*.1;
+    } else if(this.m==='petals'){
+      this.x=Math.random()*W; this.y=-20;
+      this.vx=-.4+Math.random()*.8; this.vy=.5+Math.random()*1.4;
+      this.ang=Math.random()*Math.PI*2; this.sp=(-.02+Math.random()*.04);
+      this.sz=3+Math.random()*7;
+      const h=290+Math.random()*50;
+      this.a=.35+Math.random()*.5; this.col=`hsla(${h},55%,72%,${this.a})`;
+    } else if(this.m==='embers'){
+      this.x=W*.25+Math.random()*W*.5; this.y=H+10;
+      this.vx=-1+Math.random()*2; this.vy=-(0.5+Math.random()*2);
+      this.sz=1.5+Math.random()*2.5; this.life=1; this.dec=.003+Math.random()*.005;
+      this.a=.5+Math.random()*.5;
+      const g=130+Math.floor(Math.random()*90);
+      this.col=`rgba(245,${g},66,${this.a})`;
+    } else if(this.m==='glow'){
+      this.x=Math.random()*W; this.y=Math.random()*H;
+      this.vx=-.15+Math.random()*.3; this.vy=-.15+Math.random()*.3;
+      this.sz=1+Math.random()*2.5; this.pa=.08+Math.random()*.35;
+      this.ph=Math.random()*Math.PI*2; this.a=this.pa;
+    }
+  }
+  update(){
+    const W=cvs.width,H=cvs.height;
+    if(this.m==='rain'||this.m==='softrain'){ this.x+=this.vx; this.y+=this.vy; if(this.y>H+10)this.init(); }
+    else if(this.m==='petals'){ this.x+=this.vx+Math.sin(this.ang)*.25; this.y+=this.vy; this.ang+=this.sp; if(this.y>H+30)this.init(); }
+    else if(this.m==='embers'){ this.x+=this.vx; this.y+=this.vy; this.life-=this.dec; if(this.life<=0||this.y<-10)this.init(); }
+    else if(this.m==='glow'){ this.x+=this.vx; this.y+=this.vy; this.ph+=.018; this.a=this.pa*(.5+.5*Math.sin(this.ph)); if(this.x<0||this.x>W)this.vx*=-1; if(this.y<0||this.y>H)this.vy*=-1; }
+  }
+  draw(){
+    cx.save();
+    if(this.m==='rain'||this.m==='softrain'){
+      cx.strokeStyle=`rgba(126,184,212,${this.a})`; cx.lineWidth=1; cx.globalAlpha=this.a;
+      cx.beginPath(); cx.moveTo(this.x,this.y); cx.lineTo(this.x+this.vx*2,this.y+this.len); cx.stroke();
+    } else if(this.m==='petals'){
+      cx.globalAlpha=this.a; cx.fillStyle=this.col;
+      cx.translate(this.x,this.y); cx.rotate(this.ang);
+      cx.beginPath(); cx.ellipse(0,0,this.sz*.45,this.sz,0,0,Math.PI*2); cx.fill();
+    } else if(this.m==='embers'){
+      cx.globalAlpha=this.a*this.life; cx.fillStyle=this.col;
+      cx.beginPath(); cx.arc(this.x,this.y,this.sz*this.life,0,Math.PI*2); cx.fill();
+    } else if(this.m==='glow'){
+      cx.globalAlpha=this.a;
+      const g=cx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.sz*5);
+      g.addColorStop(0,'rgba(194,96,122,.6)'); g.addColorStop(1,'rgba(194,96,122,0)');
+      cx.fillStyle=g; cx.beginPath(); cx.arc(this.x,this.y,this.sz*5,0,Math.PI*2); cx.fill();
+    }
+    cx.restore();
+  }
+}
+
+function setPts(mode,count){ pMode=mode; pts=[]; for(let i=0;i<count;i++)pts.push(new P(mode)); }
+(function loop(){ cx.clearRect(0,0,cvs.width,cvs.height); pts.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(loop); })();
+setPts('rain',120);
+
+/* ════════════════════════════════════════════
+   BACKGROUND
+════════════════════════════════════════════ */
+const BG_MAP = { s1:'bgs', s2:'bgm', s3:'bgh', s3b:'bgh', s4:'bgr', s5:'bgc', 's-choice':'bgx', 's-yes':'bgy', 's-no':'bgn', 's-credits':'bgs' };
+const PT_MAP = { s1:['rain',120], s2:['rain',70], s3:['glow',40], s3b:['glow',30], s4:['petals',65], s5:['petals',40], 's-choice':['glow',85], 's-yes':['embers',75], 's-no':['softrain',80], 's-credits':['glow',35] };
+const METER_ON = ['s3','s3b','s4','s5','s-choice'];
+
+/* ════════════════════════════════════════════
+   SCENE TRANSITION ENGINE
+════════════════════════════════════════════ */
+const ov = document.getElementById('ov');
+
+function go(toId){
+  if(G.transitioning) return;
+  G.transitioning = true;
+  ov.classList.add('dark');
+
+  setTimeout(()=>{
+    // swap scenes
+    document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+    const el = document.getElementById(toId);
+    if(el){ el.classList.add('on'); el.scrollTop=0; }
+    G.scene = toId;
+
+    // bg & particles
+    const bgcl = BG_MAP[toId]; if(bgcl){ document.getElementById('bg').className=bgcl; }
+    const pt = PT_MAP[toId]; if(pt) setPts(...pt);
+
+    // meter
+    document.getElementById('hmeter').classList.toggle('on', METER_ON.includes(toId));
+
+    // dots
+    updateDots(toId);
+
+    // slomo
+    document.getElementById('slomo').classList.toggle('on', toId==='s-choice');
+
+    // scene hooks
+    if(toId==='s5') setTimeout(runConfession, 300);
+    if(toId==='s-no') setTimeout(runNoEnding, 300);
+    if(toId==='s-credits') setTimeout(showBadge, 400);
+
+    // fade back in
+    ov.classList.remove('dark');
+    G.transitioning = false;
+  }, 600);
+}
+
+/* ════════════════════════════════════════════
+   DOTS
+════════════════════════════════════════════ */
+function updateDots(id){
+  const el = document.getElementById('dots');
+  const idx = SCENE_ORDER.indexOf(id);
+  if(idx<0){ el.classList.remove('on'); return; }
+  el.classList.add('on');
+  el.innerHTML = SCENE_ORDER.map((_,i)=>
+    `<div class="dot ${i<idx?'was':''} ${i===idx?'cur':''}"></div>`
+  ).join('');
+}
+
+/* ════════════════════════════════════════════
+   HEALING METER
+════════════════════════════════════════════ */
+function setHeal(pct){
+  document.getElementById('hfill').style.width=pct+'%';
+  document.getElementById('hpct').textContent=pct+'%';
+}
+
+/* ════════════════════════════════════════════
+   CHAPTERS
+════════════════════════════════════════════ */
+const CHAPTERS = [
+  { id:'listen', icon:'👂', name:'Listening', desc:'He gave her space to speak.',
+    lbl:'Moment 1 — Listening', ttl:'He Listened',
+    nar:'She hadn\'t spoken about it to anyone. The words felt too heavy, too broken. But he didn\'t push. He just… made space.',
+    dlg:'"You don\'t have to explain. Say as little or as much as you need."',
+    choices:[
+      { t:'"Thank you for not asking why."',
+        r:'He nodded quietly. No questions. Just presence.\n\nShe felt, for the first time, that her pain was allowed to exist.' },
+      { t:'"I\'m scared I\'ll never feel okay again."',
+        r:'"Then I\'ll sit in the scary part with you, for as long as it takes."' },
+    ]},
+  { id:'support', icon:'🤝', name:'Supporting', desc:'He showed up on her worst days.',
+    lbl:'Moment 2 — Supporting', ttl:'He Showed Up',
+    nar:'There were days she pushed everyone away. Days she was cold, distant. He came back anyway — not because he was weak, but because he understood pain.',
+    dlg:'"I know you\'re hurting. I\'m not going anywhere."',
+    choices:[
+      { t:'"Why are you still here?"',
+        r:'"Because you matter. Even on the days you don\'t believe it yourself."' },
+      { t:'"I don\'t deserve this kindness."',
+        r:'"You don\'t have to deserve kindness to receive it."\n\nShe stared at him. It was the truest thing anyone had ever said to her.' },
+    ]},
+  { id:'encourage', icon:'✨', name:'Encouraging', desc:'He helped her remember who she was.',
+    lbl:'Moment 3 — Encouraging', ttl:'She Started to Remember',
+    nar:'Slowly, she started to remember things she had loved before the hurt. Small things. Music. The smell of rain. Laughing at something stupid.',
+    dlg:'"I saw you smile just now. It looked good on you."',
+    choices:[
+      { t:'"I forgot what it felt like to smile."',
+        r:'"Then let\'s give you more reasons to remember."\n\nAnd he did — one small, patient moment at a time.' },
+      { t:'"You see too much."',
+        r:'"Maybe. But someone should."\n\nShe looked away, embarrassed. And smiled again — this time, on purpose.' },
+    ]},
+  { id:'rise', icon:'🌱', name:'Finding Herself', desc:'She started to believe in herself again.',
+    lbl:'Moment 4 — Rising', ttl:'She Found Herself Again',
+    nar:'One morning she woke up and realised — she had survived. Not just survived. She had grown. The cracks were still there, but light was coming through.',
+    dlg:'"I think I want to try again. Not because of him. Not even because of you. Because of me."',
+    choices:[
+      { t:'"That\'s the bravest thing I\'ve heard."',
+        r:'She laughed — really laughed — for the first time in months.\n\n"Don\'t make it weird."\n\n"Too late," he said. And somehow, it was perfect.' },
+      { t:'"I knew you were still in there."',
+        r:'"Was I that obvious?"\n\n"No. But I was looking."\n\nShe paused. And for the first time, she didn\'t look away.' },
+    ]},
+];
+
+function buildChapters(){
+  const el = document.getElementById('ch-list');
+  el.innerHTML='';
+  CHAPTERS.forEach(ch=>{
+    const done = G.healed.includes(ch.id);
+    const d = document.createElement('div');
+    d.className='ch-card'+(done?' done':'');
+    d.innerHTML=`<div class="ch-icon">${ch.icon}</div><div class="ch-txt"><div class="ch-name">${ch.name}</div><div class="ch-desc">${ch.desc}</div></div><div class="ch-ck">✓</div>`;
+    if(!done) d.onclick=()=>openChapter(ch);
+    el.appendChild(d);
+  });
+  const allDone = G.healed.length >= CHAPTERS.length;
+  document.getElementById('btn-rise').style.display = allDone ? 'inline-block' : 'none';
+}
+
+function openChapter(ch){
+  document.getElementById('ci-lbl').textContent = ch.lbl;
+  document.getElementById('ci-ttl').textContent = ch.ttl;
+  document.getElementById('ci-nar').textContent = ch.nar;
+  const wEl = document.getElementById('ci-who');
+  const dEl = document.getElementById('ci-dlg');
+  wEl.style.display='block';
+  dEl.textContent = ch.dlg;
+  const chEl = document.getElementById('ci-ch');
+  chEl.innerHTML='';
+  ch.choices.forEach(c=>{
+    const b = document.createElement('button');
+    b.style.cssText='padding:13px 16px;background:rgba(194,96,122,.1);border:1px solid rgba(194,96,122,.28);border-radius:10px;color:var(--mist);font-family:var(--fd);font-style:italic;font-size:.9rem;text-align:left;cursor:pointer;transition:background .2s,border-color .2s;width:100%';
+    b.textContent=c.t;
+    b.onmouseover=()=>{ b.style.background='rgba(194,96,122,.2)'; b.style.borderColor='rgba(194,96,122,.5)'; };
+    b.onmouseout=()=>{ b.style.background='rgba(194,96,122,.1)'; b.style.borderColor='rgba(194,96,122,.28)'; };
+    b.onclick=()=>pickChoice(c,ch,chEl,dEl,wEl);
+    chEl.appendChild(b);
+  });
+  go('s3b');
+}
+
+function pickChoice(c,ch,chEl,dEl,wEl){
+  chEl.innerHTML='';
+  // show response
+  const resp = document.createElement('div');
+  resp.innerHTML=`<div class="who" style="color:var(--rose-l);margin-top:12px">He replied</div>
+    <div class="nar" style="font-size:.9rem;margin-top:6px">${c.r.replace(/\n\n/g,'<br><br>')}</div>`;
+  chEl.appendChild(resp);
+  // mark done
+  if(!G.healed.includes(ch.id)){
+    G.healed.push(ch.id);
+    const p = Math.round(G.healed.length/CHAPTERS.length*100);
+    setTimeout(()=>setHeal(p),500);
+  }
+  // back btn
+  const bk = document.createElement('button');
+  bk.className='bp'; bk.style.marginTop='16px'; bk.textContent='Back to Journey →';
+  bk.onclick=()=>{ go('s3'); setTimeout(buildChapters,650); };
+  chEl.appendChild(bk);
+}
+
+/* ════════════════════════════════════════════
+   CONFESSION
+════════════════════════════════════════════ */
+function runConfession(){
+  const lines = document.querySelectorAll('.cfl');
+  lines.forEach(l=>l.classList.remove('vis'));
+  document.getElementById('cf-btn').style.display='none';
+  const T = [400,1700,3300,4200,5700,7200,8100];
+  lines.forEach((l,i)=>setTimeout(()=>l.classList.add('vis'), T[i]||i*1100));
+  setTimeout(()=>{ document.getElementById('cf-btn').style.display='flex'; }, 9800);
+}
+
+/* ════════════════════════════════════════════
+   FINAL CHOICE
+════════════════════════════════════════════ */
+function choose(c){
+  G.choice = c;
+  try{ localStorage.setItem('tfcChoice',c); localStorage.setItem('tfcPlayed','1'); }catch(e){}
+  document.getElementById('slomo').classList.remove('on');
+  go(c==='yes'?'s-yes':'s-no');
+}
+
+/* ════════════════════════════════════════════
+   NO ENDING
+════════════════════════════════════════════ */
+function runNoEnding(){
+  const box = document.getElementById('no-story');
+  box.innerHTML='';
+  document.getElementById('no-end').style.display='none';
+
+  const SEQ = [
+    {ms:200,  html:'<span style="display:block;font-style:italic;color:rgba(232,224,240,.55);font-size:.9rem;text-align:center;margin:6px 0">She paused.</span>'},
+    {ms:1600, html:'<span style="display:block;font-style:italic;color:rgba(232,224,240,.42);font-size:.84rem;text-align:center;margin:6px 0">The silence between them held a whole world.</span>'},
+    {ms:3200, html:'<div class="who" style="color:var(--cyan-s);margin-top:14px">He smiled gently and said</div>'},
+    {ms:3800, html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:1rem;color:var(--mist);margin:5px 0">"Thank you for being honest."</span>'},
+    {ms:5200, html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.8);margin:4px 0">"And remember…"</span>'},
+    {ms:6600, html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.8);margin:4px 0">"If life ever breaks you again,"</span>'},
+    {ms:7800, html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.8);margin:4px 0">"if you ever need someone to help you heal,"</span>'},
+    {ms:9200, html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:1.08rem;color:var(--cyan-s);margin:10px 0;text-shadow:0 0 18px rgba(126,184,212,.4)">"call me."</span>'},
+    {ms:10800,html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:.9rem;color:rgba(232,224,240,.6);margin:4px 0">"I may not be beside you every day,"</span>'},
+    {ms:12000,html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:.9rem;color:rgba(232,224,240,.6);margin:4px 0">"but I\'ll always hope you\'re okay."</span>'},
+    {ms:13600,html:`
+      <div style="height:80px;position:relative;margin:16px 0 4px;overflow:hidden">
+        <svg viewBox="0 0 60 100" fill="none" style="position:absolute;left:38%;width:42px;height:70px;opacity:.5;animation:girlAway 3s ease forwards">
+          <ellipse cx="30" cy="16" rx="10" ry="11" fill="rgba(232,224,240,.5)"/>
+          <path d="M20 27C20 50 18 68 16 88c8-2 20-2 28 0C42 68 40 50 40 27Z" fill="rgba(232,224,240,.35)"/>
+          <path d="M16 88 12 100M44 88 48 100" stroke="rgba(232,224,240,.35)" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <svg viewBox="0 0 60 100" fill="none" style="position:absolute;right:22%;bottom:0;width:34px;height:58px;opacity:.45;animation:boyFade 3.5s ease forwards 1s">
+          <ellipse cx="30" cy="16" rx="9" ry="10" fill="rgba(126,184,212,.5)"/>
+          <rect x="22" y="27" width="16" height="42" rx="3" fill="rgba(126,184,212,.35)"/>
+          <path d="M22 69 18 100M38 69 42 100" stroke="rgba(126,184,212,.35)" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <style>@keyframes girlAway{0%{transform:translateX(0) scale(1);opacity:.5}100%{transform:translateX(110px) scale(.7);opacity:0}}</style>
+    `},
+  ];
+
+  SEQ.forEach(s=>{
+    setTimeout(()=>{
+      const tmp = document.createElement('div');
+      tmp.innerHTML = s.html;
+      tmp.style.opacity='0';
+      tmp.style.transform='translateY(8px)';
+      tmp.style.transition='opacity .7s ease,transform .7s ease';
+      box.appendChild(tmp);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        tmp.style.opacity='1'; tmp.style.transform='translateY(0)';
+      }));
+    }, s.ms);
+  });
+
+  setTimeout(()=>{
+    const end = document.getElementById('no-end');
+    end.style.display='block';
+    end.style.opacity='0'; end.style.transform='translateY(10px)';
+    end.style.transition='opacity 1s ease,transform 1s ease';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      end.style.opacity='1'; end.style.transform='translateY(0)';
+    }));
+  }, 16500);
+}
+
+/* ════════════════════════════════════════════
+   CREDITS BADGE
+════════════════════════════════════════════ */
+function showBadge(){
+  const b = document.getElementById('ebadge');
+  const c = G.choice || (()=>{ try{ return localStorage.getItem('tfcChoice'); }catch(e){ return null; } })();
+  if(c==='yes'){
+    b.style.cssText='display:block;padding:9px 16px;border-radius:8px;font-size:.76rem;background:rgba(194,96,122,.12);border:1px solid rgba(194,96,122,.3);color:var(--rose-l)';
+    b.textContent='❤️ You chose: Together We Rise';
+  } else if(c==='no'){
+    b.style.cssText='display:block;padding:9px 16px;border-radius:8px;font-size:.76rem;background:rgba(126,184,212,.1);border:1px solid rgba(126,184,212,.24);color:var(--cyan-s)';
+    b.textContent='🌙 You chose: A Promise Without Conditions';
+  }
+}
+
+/* ════════════════════════════════════════════
+   REPLAY
+════════════════════════════════════════════ */
+function replay(){
+  G.healed=[]; G.choice=null;
+  setHeal(0);
+  go('s1');
+  setTimeout(buildChapters,700);
+}
+
+/* ════════════════════════════════════════════
+   MUSIC BTN
+════════════════════════════════════════════ */
+document.getElementById('mbtn').addEventListener('click',function(){
+  this.textContent = this.textContent==='♪'?'♫':'♪';
+  this.style.color = this.textContent==='♫'?'var(--rose-l)':'var(--mist)';
+});
+
+/* ════════════════════════════════════════════
+   LOADING  — fixed: single clear, guaranteed proceed
+════════════════════════════════════════════ */
+(function startLoad(){
+  const bar = document.getElementById('lbar');
+  const msg = document.getElementById('lmsg');
+  const MSGS = ['Gathering emotions…','Setting the rain…','Finding the characters…','Almost ready…'];
+  let pct=0, mi=0, done=false;
+
+  const tick = setInterval(()=>{
+    pct += 4 + Math.random()*5;
+    if(pct>=100){ pct=100; }
+    bar.style.width = pct+'%';
+    if(pct>22 && mi===0){ msg.textContent=MSGS[0]; mi++; }
+    if(pct>48 && mi===1){ msg.textContent=MSGS[1]; mi++; }
+    if(pct>72 && mi===2){ msg.textContent=MSGS[2]; mi++; }
+    if(pct>90 && mi===3){ msg.textContent=MSGS[3]; mi++; }
+    if(pct>=100 && !done){
+      done=true;
+      clearInterval(tick);
+      setTimeout(()=>{
+        document.getElementById('mbtn').classList.add('on');
+        buildChapters();
+        go('s1');
+      }, 550);
+    }
+  }, 90);
+})();
+</script>
+</body>
+</html>
