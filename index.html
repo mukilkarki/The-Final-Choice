@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>The Final Choice</title>
 <style>
-/* ─── GOOGLE FONTS (inline @import so no external link blocking) ─── */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500&display=swap');
-
 /* ─── RESET ─── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -21,8 +18,8 @@
   --green:#4caf78;
   --glass:rgba(255,255,255,0.06);
   --gb:rgba(255,255,255,0.12);
-  --fd:'Playfair Display',Georgia,serif;
-  --fb:'Inter',sans-serif;
+  --fd:Georgia,'Times New Roman',serif;
+  --fb:Inter,system-ui,-apple-system,Segoe UI,sans-serif;
 }
 
 /* ─── BASE ─── */
@@ -47,7 +44,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 #ov.dark{opacity:1;pointer-events:all}
 
 /* ─── SLOW-MO BLUR ─── */
-#slomo{position:fixed;inset:0;z-index:800;backdrop-filter:blur(4px) saturate(.65);-webkit-backdrop-filter:blur(4px) saturate(.65);opacity:0;pointer-events:none;transition:opacity 1.4s ease}
+#slomo{position:fixed;inset:0;z-index:800;background:radial-gradient(circle at 50% 50%,rgba(194,96,122,.10),rgba(6,7,20,.18));opacity:0;pointer-events:none;transition:opacity 1.4s ease}
 #slomo.on{opacity:1}
 
 /* ─── GAME WRAPPER ─── */
@@ -167,7 +164,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 .cno:hover{box-shadow:0 0 55px rgba(126,184,212,.32)}
 
 /* ─── CONFESSION LINES ─── */
-.cfl{display:block;font-family:var(--fd);font-size:clamp(.9rem,2.6vw,1.08rem);font-style:italic;line-height:1.95;color:rgba(232,224,240,.88);opacity:0;transform:translateY(9px);transition:opacity .85s ease,transform .85s ease;margin-bottom:2px}
+.cfl{display:block;font-family:var(--fd);font-size:clamp(.9rem,2.6vw,1.08rem);font-style:italic;line-height:1.95;color:rgba(232,224,240,.88);opacity:0;transform:translateY(9px);transition:opacity .85s ease,transform .85s ease,text-shadow .85s ease;margin-bottom:2px}
 .cfl.vis{opacity:1;transform:translateY(0)}
 
 /* ─── ENDING ─── */
@@ -186,6 +183,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
   .cbtn{width:112px;height:112px}
   .cpair{gap:24px}
 }
+
+.sc.on .card{animation:sceneIn .9s cubic-bezier(.2,.8,.2,1) both}.camera{animation:cameraDrift 12s ease-in-out infinite alternate}.pulse{animation:screenPulse .7s ease}.love-hit{color:var(--rose-l)!important;text-shadow:0 0 34px rgba(232,120,155,.82),0 0 70px rgba(194,96,122,.42)}
+@keyframes sceneIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes cameraDrift{to{transform:scale(1.025) translateY(-4px)}}@keyframes screenPulse{50%{filter:brightness(1.18);transform:scale(1.006)}}
+#musicPanel{position:fixed;top:62px;right:14px;z-index:999;display:none;align-items:center;gap:8px;padding:8px 10px;background:rgba(6,7,20,.62);border:1px solid var(--gb);border-radius:999px;backdrop-filter:blur(14px)}#musicPanel.on{display:flex}#vol{width:92px;accent-color:var(--rose)}#trackName{font-size:.62rem;color:rgba(232,224,240,.58);max-width:92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.iconbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--gb);background:var(--glass);color:var(--mist);cursor:pointer}
+.montage{max-width:720px;text-align:center;background:transparent;border:0;box-shadow:none;backdrop-filter:none}.memory-line{font-family:var(--fd);font-style:italic;font-size:clamp(1.25rem,5vw,2.7rem);line-height:1.35;opacity:0;transform:translateY(18px) scale(.98);transition:opacity 1.2s ease,transform 1.2s ease;text-shadow:0 0 32px rgba(245,200,66,.16)}.memory-line.show{opacity:1;transform:translateY(0) scale(1)}.memory-line.dim{opacity:.18}.letter{max-width:560px;background:linear-gradient(135deg,#f2dfbd,#d8bd8b);color:#2c1b16;border-radius:8px;padding:clamp(24px,6vw,46px);box-shadow:0 24px 80px rgba(0,0,0,.55);font-family:var(--fd);position:relative}.letter:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 10%,rgba(255,255,255,.4),transparent 30%),repeating-linear-gradient(0deg,rgba(90,50,20,.035) 0 1px,transparent 1px 7px);pointer-events:none}.ink{position:relative;white-space:pre-line;font-size:clamp(1rem,3vw,1.22rem);line-height:1.8}.ink span{opacity:0}.ink span.show{opacity:1}.sunrise{position:absolute;inset:auto 0 0;height:45%;background:radial-gradient(circle at 50% 100%,rgba(255,205,100,.55),transparent 42%);pointer-events:none}.quote{font-size:clamp(.95rem,3vw,1.1rem);line-height:1.9;color:rgba(232,224,240,.72);font-family:var(--fd);font-style:italic}
+@media(max-width:560px){#musicPanel{top:auto;right:10px;bottom:48px}.cpair{gap:14px}.cbtn{width:104px;height:104px}.sc{padding:14px}.nar,.dlg{line-height:1.75}.ttl{font-size:clamp(1.35rem,7vw,2rem)}#hmeter{top:12px;left:12px}.hbw{width:82px}}
+
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -197,7 +201,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 <div id="slomo"></div>
 
 <!-- CHROME -->
-<button id="mbtn" title="Toggle music (placeholder)">♪</button>
+<button id="mbtn" title="Mute or unmute music">♪</button>
+<div id="musicPanel"><button class="iconbtn" id="muteBtn" title="Mute">♪</button><input id="vol" type="range" min="0" max="100" value="55" aria-label="Music volume"><span id="trackName">silent</span></div>
 <div id="hmeter">
   <span class="hl">Healing</span>
   <div class="hbw"><div class="hb" id="hfill"></div></div>
@@ -321,7 +326,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
     </div>
     <div class="div"></div>
     <div class="dlg fu d6" style="text-align:center;color:rgba(232,224,240,.5);font-size:.86rem">And somewhere nearby, he smiled.</div>
-    <div class="brow"><button class="bp d6 fu" onclick="go('s5')">The Confession →</button></div>
+    <div class="brow"><button class="bp d6 fu" onclick="go('s-montage')">The Confession →</button></div>
+  </div>
+</div>
+
+
+<!-- SCENE MEMORY MONTAGE -->
+<div class="sc" id="s-montage">
+  <div class="card montage camera">
+    <div id="memoryLines"></div>
   </div>
 </div>
 
@@ -364,6 +377,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 <!-- SCENE YES -->
 <div class="sc" id="s-yes">
   <div class="card" style="max-width:510px;text-align:center">
+    <div class="sunrise"></div>
     <div class="lbl fu" style="text-align:center">Ending — Together</div>
     <div class="sil-wrap" style="height:96px">
       <svg viewBox="0 0 130 100" fill="none" style="width:130px;height:96px;animation:walkTog 2.5s ease-in-out infinite alternate">
@@ -379,12 +393,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
         <path d="M53 44C62 42 68 42 77 44" stroke="rgba(255,210,110,.65)" stroke-width="4" stroke-linecap="round"/>
       </svg>
     </div>
-    <div class="etitle gg fu d1">"Together We Rise"</div>
+    <div class="fmsg fu d1">She looked at him.<br><br>Silence.<br><br>Then, she smiled.</div>
+    <div class="fmsg fu d2">The same smile he spent months protecting.<br><br>This time...<br><br><span class="gg">It was for him.</span></div>
+    <div class="etitle gg fu d3">"Together We Rise"</div>
     <div class="div"></div>
-    <div class="fmsg fu d2">She took his hand.<br>Not because she needed someone.<br>But because she chose <em>him</em>.</div>
-    <div class="esub fu d3">And they walked into the sunrise together.</div>
+    <div class="esub fu d4">Hand in hand, they walked into the sunrise together.</div>
     <div class="brow" style="justify-content:center;margin-top:20px">
-      <button class="bp fu d4" onclick="go('s-credits')">Credits →</button>
+      <button class="bp fu d4" onclick="go('s-letter')">Read His Letter →</button>
       <button class="bg2 fu d4" onclick="replay()">Play Again</button>
     </div>
   </div>
@@ -404,10 +419,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
         even when their choice doesn't include you.
       </div>
       <div class="brow" style="justify-content:center">
-        <button class="bp" onclick="go('s-credits')">Credits →</button>
+        <button class="bp" onclick="go('s-letter')">Read His Letter →</button>
         <button class="bg2" onclick="replay()">Play Again</button>
       </div>
     </div>
+  </div>
+</div>
+
+
+<!-- SCENE LETTER -->
+<div class="sc" id="s-letter">
+  <div class="letter">
+    <div class="ink" id="letterInk"></div>
+    <div class="brow" style="justify-content:center;margin-top:22px;position:relative"><button class="bp" id="letterNext" style="display:none" onclick="go('s-credits')">Credits →</button></div>
   </div>
 </div>
 
@@ -418,11 +442,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
     <div class="ttl fu" style="font-size:1.5rem">The Final Choice</div>
     <div class="esub fu d1" style="margin-bottom:18px">An Interactive Short Film</div>
     <div class="div"></div>
-    <div class="nar fu d2" style="font-size:.88rem;color:rgba(232,224,240,.6);margin-top:14px">
-      "Some stories are not about getting the ending you wanted.<br>
-      They're about becoming someone worthy of love —<br>
-      first, by yourself."
-    </div>
+    <div class="quote fu d2" style="margin-top:14px">"Some people enter your life to stay forever.<br><br>Some people enter your life to teach you how to love.<br><br>Both are beautiful."</div>
     <div class="div"></div>
     <div class="l-sub fu d3" style="margin-top:2px">Story &amp; Design — For every soul who stayed</div>
     <div class="l-sub fu d4" style="margin-top:4px">Built with: HTML · CSS · JavaScript · Love</div>
@@ -445,7 +465,7 @@ const G = {
   choice: null,
   transitioning: false,
 };
-const SCENE_ORDER = ['s1','s2','s3','s3b','s4','s5','s-choice'];
+const SCENE_ORDER = ['s1','s2','s3','s3b','s4','s-montage','s5','s-choice'];
 
 /* ════════════════════════════════════════════
    PARTICLES
@@ -481,6 +501,8 @@ class P {
       this.a=.5+Math.random()*.5;
       const g=130+Math.floor(Math.random()*90);
       this.col=`rgba(245,${g},66,${this.a})`;
+    } else if(this.m==='tears'){
+      this.x=Math.random()*W; this.y=-30-Math.random()*H; this.vx=-.12+Math.random()*.24; this.vy=.55+Math.random()*1.05; this.len=8+Math.random()*14; this.a=.08+Math.random()*.22; this.sz=1+Math.random()*2;
     } else if(this.m==='glow'){
       this.x=Math.random()*W; this.y=Math.random()*H;
       this.vx=-.15+Math.random()*.3; this.vy=-.15+Math.random()*.3;
@@ -493,6 +515,7 @@ class P {
     if(this.m==='rain'||this.m==='softrain'){ this.x+=this.vx; this.y+=this.vy; if(this.y>H+10)this.init(); }
     else if(this.m==='petals'){ this.x+=this.vx+Math.sin(this.ang)*.25; this.y+=this.vy; this.ang+=this.sp; if(this.y>H+30)this.init(); }
     else if(this.m==='embers'){ this.x+=this.vx; this.y+=this.vy; this.life-=this.dec; if(this.life<=0||this.y<-10)this.init(); }
+    else if(this.m==='tears'){ this.x+=this.vx; this.y+=this.vy; if(this.y>H+30)this.init(); }
     else if(this.m==='glow'){ this.x+=this.vx; this.y+=this.vy; this.ph+=.018; this.a=this.pa*(.5+.5*Math.sin(this.ph)); if(this.x<0||this.x>W)this.vx*=-1; if(this.y<0||this.y>H)this.vy*=-1; }
   }
   draw(){
@@ -507,6 +530,8 @@ class P {
     } else if(this.m==='embers'){
       cx.globalAlpha=this.a*this.life; cx.fillStyle=this.col;
       cx.beginPath(); cx.arc(this.x,this.y,this.sz*this.life,0,Math.PI*2); cx.fill();
+    } else if(this.m==='tears'){
+      cx.globalAlpha=this.a; cx.strokeStyle='rgba(126,184,212,.75)'; cx.shadowColor='rgba(126,184,212,.8)'; cx.shadowBlur=10; cx.lineWidth=this.sz; cx.beginPath(); cx.moveTo(this.x,this.y); cx.lineTo(this.x+this.vx*5,this.y+this.len); cx.stroke();
     } else if(this.m==='glow'){
       cx.globalAlpha=this.a;
       const g=cx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.sz*5);
@@ -524,9 +549,9 @@ setPts('rain',120);
 /* ════════════════════════════════════════════
    BACKGROUND
 ════════════════════════════════════════════ */
-const BG_MAP = { s1:'bgs', s2:'bgm', s3:'bgh', s3b:'bgh', s4:'bgr', s5:'bgc', 's-choice':'bgx', 's-yes':'bgy', 's-no':'bgn', 's-credits':'bgs' };
-const PT_MAP = { s1:['rain',120], s2:['rain',70], s3:['glow',40], s3b:['glow',30], s4:['petals',65], s5:['petals',40], 's-choice':['glow',85], 's-yes':['embers',75], 's-no':['softrain',80], 's-credits':['glow',35] };
-const METER_ON = ['s3','s3b','s4','s5','s-choice'];
+const BG_MAP = { s1:'bgs', s2:'bgm', s3:'bgh', s3b:'bgh', s4:'bgr', 's-montage':'bgr', s5:'bgc', 's-choice':'bgx', 's-yes':'bgy', 's-no':'bgn', 's-letter':'bgh', 's-credits':'bgs' };
+const PT_MAP = { s1:['rain',120], s2:['rain',70], s3:['glow',40], s3b:['glow',30], s4:['petals',65], 's-montage':['glow',95], s5:['tears',75], 's-choice':['glow',85], 's-yes':['embers',95], 's-no':['tears',110], 's-letter':['glow',55], 's-credits':['glow',35] };
+const METER_ON = ['s3','s3b','s4','s-montage','s5','s-choice'];
 
 /* ════════════════════════════════════════════
    SCENE TRANSITION ENGINE
@@ -557,10 +582,13 @@ function go(toId){
 
     // slomo
     document.getElementById('slomo').classList.toggle('on', toId==='s-choice');
+    Music.setScene(toId);
 
     // scene hooks
+    if(toId==='s-montage') setTimeout(runMontage, 300);
     if(toId==='s5') setTimeout(runConfession, 300);
     if(toId==='s-no') setTimeout(runNoEnding, 300);
+    if(toId==='s-letter') setTimeout(runLetter, 300);
     if(toId==='s-credits') setTimeout(showBadge, 400);
 
     // fade back in
@@ -701,7 +729,7 @@ function runConfession(){
   lines.forEach(l=>l.classList.remove('vis'));
   document.getElementById('cf-btn').style.display='none';
   const T = [400,1700,3300,4200,5700,7200,8100];
-  lines.forEach((l,i)=>setTimeout(()=>l.classList.add('vis'), T[i]||i*1100));
+  lines.forEach((l,i)=>setTimeout(()=>{ l.classList.add('vis'); Music.beat(i===3?1.4:.6); if(i===3){ l.classList.add('love-hit'); document.body.classList.add('pulse'); setTimeout(()=>document.body.classList.remove('pulse'),750); } }, T[i]||i*1100));
   setTimeout(()=>{ document.getElementById('cf-btn').style.display='flex'; }, 9800);
 }
 
@@ -725,30 +753,28 @@ function runNoEnding(){
 
   const SEQ = [
     {ms:200,  html:'<span style="display:block;font-style:italic;color:rgba(232,224,240,.55);font-size:.9rem;text-align:center;margin:6px 0">She paused.</span>'},
-    {ms:1600, html:'<span style="display:block;font-style:italic;color:rgba(232,224,240,.42);font-size:.84rem;text-align:center;margin:6px 0">The silence between them held a whole world.</span>'},
-    {ms:3200, html:'<div class="who" style="color:var(--cyan-s);margin-top:14px">He smiled gently and said</div>'},
-    {ms:3800, html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:1rem;color:var(--mist);margin:5px 0">"Thank you for being honest."</span>'},
-    {ms:5200, html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.8);margin:4px 0">"And remember…"</span>'},
-    {ms:6600, html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.8);margin:4px 0">"If life ever breaks you again,"</span>'},
-    {ms:7800, html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.8);margin:4px 0">"if you ever need someone to help you heal,"</span>'},
-    {ms:9200, html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:1.08rem;color:var(--cyan-s);margin:10px 0;text-shadow:0 0 18px rgba(126,184,212,.4)">"call me."</span>'},
-    {ms:10800,html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:.9rem;color:rgba(232,224,240,.6);margin:4px 0">"I may not be beside you every day,"</span>'},
-    {ms:12000,html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:.9rem;color:rgba(232,224,240,.6);margin:4px 0">"but I\'ll always hope you\'re okay."</span>'},
-    {ms:13600,html:`
-      <div style="height:80px;position:relative;margin:16px 0 4px;overflow:hidden">
-        <svg viewBox="0 0 60 100" fill="none" style="position:absolute;left:38%;width:42px;height:70px;opacity:.5;animation:girlAway 3s ease forwards">
-          <ellipse cx="30" cy="16" rx="10" ry="11" fill="rgba(232,224,240,.5)"/>
-          <path d="M20 27C20 50 18 68 16 88c8-2 20-2 28 0C42 68 40 50 40 27Z" fill="rgba(232,224,240,.35)"/>
-          <path d="M16 88 12 100M44 88 48 100" stroke="rgba(232,224,240,.35)" stroke-width="5" stroke-linecap="round"/>
+    {ms:1500, html:'<span style="display:block;font-style:italic;color:rgba(232,224,240,.42);font-size:.84rem;text-align:center;margin:6px 0">The silence between them held a whole world.</span>'},
+    {ms:3100, html:'<div class="who" style="color:var(--cyan-s);margin-top:14px">He smiled gently and said</div>'},
+    {ms:3900, html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:1.08rem;color:var(--mist);margin:7px 0">"I loved you...</span>'},
+    {ms:5600, html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.78);margin:4px 0">not because I wanted something from you.</span>'},
+    {ms:7600, html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.86);margin:4px 0">I loved you because seeing you heal made me happy."</span>'},
+    {ms:10100,html:'<span style="display:block;height:20px"></span>'},
+    {ms:11600,html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.8);margin:4px 0">"If life ever hurts you again..."</span>'},
+    {ms:13600,html:'<span style="display:block;font-family:var(--fd);font-style:italic;color:rgba(232,224,240,.8);margin:4px 0">"If you ever need someone to help you heal..."</span>'},
+    {ms:15800,html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:1.16rem;color:var(--cyan-s);margin:12px 0;text-shadow:0 0 24px rgba(126,184,212,.5)">"Call me."</span>'},
+    {ms:18100,html:'<span style="display:block;height:16px"></span>'},
+    {ms:19600,html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:.95rem;color:rgba(232,224,240,.68);margin:4px 0">"Even if I\'m no longer part of your story."</span>'},
+    {ms:22100,html:'<span style="display:block;height:16px"></span>'},
+    {ms:23600,html:'<span style="display:block;font-family:var(--fd);font-style:italic;font-size:.95rem;color:rgba(232,224,240,.7);margin:4px 0">"I\'ll still hope your future is beautiful."</span>'},
+    {ms:26000,html:`
+      <div style="height:100px;position:relative;margin:18px 0 4px;overflow:hidden;background:linear-gradient(180deg,transparent,rgba(0,0,0,.2))">
+        <svg viewBox="0 0 60 100" fill="none" style="position:absolute;left:40%;bottom:0;width:46px;height:78px;opacity:.55;animation:girlAway 5s ease forwards">
+          <ellipse cx="30" cy="16" rx="10" ry="11" fill="rgba(232,224,240,.5)"/><path d="M20 27C20 50 18 68 16 88c8-2 20-2 28 0C42 68 40 50 40 27Z" fill="rgba(232,224,240,.35)"/><path d="M16 88 12 100M44 88 48 100" stroke="rgba(232,224,240,.35)" stroke-width="5" stroke-linecap="round"/>
         </svg>
-        <svg viewBox="0 0 60 100" fill="none" style="position:absolute;right:22%;bottom:0;width:34px;height:58px;opacity:.45;animation:boyFade 3.5s ease forwards 1s">
-          <ellipse cx="30" cy="16" rx="9" ry="10" fill="rgba(126,184,212,.5)"/>
-          <rect x="22" y="27" width="16" height="42" rx="3" fill="rgba(126,184,212,.35)"/>
-          <path d="M22 69 18 100M38 69 42 100" stroke="rgba(126,184,212,.35)" stroke-width="5" stroke-linecap="round"/>
+        <svg viewBox="0 0 60 100" fill="none" style="position:absolute;right:24%;bottom:0;width:38px;height:64px;opacity:.48;animation:boyFade 5s ease forwards 1.3s">
+          <ellipse cx="30" cy="16" rx="9" ry="10" fill="rgba(126,184,212,.5)"/><rect x="22" y="27" width="16" height="42" rx="3" fill="rgba(126,184,212,.35)"/><path d="M22 69 18 100M38 69 42 100" stroke="rgba(126,184,212,.35)" stroke-width="5" stroke-linecap="round"/>
         </svg>
-      </div>
-      <style>@keyframes girlAway{0%{transform:translateX(0) scale(1);opacity:.5}100%{transform:translateX(110px) scale(.7);opacity:0}}</style>
-    `},
+      </div>`},
   ];
 
   SEQ.forEach(s=>{
@@ -773,7 +799,7 @@ function runNoEnding(){
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       end.style.opacity='1'; end.style.transform='translateY(0)';
     }));
-  }, 16500);
+  }, 32500);
 }
 
 /* ════════════════════════════════════════════
@@ -804,10 +830,47 @@ function replay(){
 /* ════════════════════════════════════════════
    MUSIC BTN
 ════════════════════════════════════════════ */
-document.getElementById('mbtn').addEventListener('click',function(){
-  this.textContent = this.textContent==='♪'?'♫':'♪';
-  this.style.color = this.textContent==='♫'?'var(--rose-l)':'var(--mist)';
-});
+
+
+
+/* ════════════════════════════════════════════
+   CINEMATIC MONTAGE, LETTER, AND MUSIC
+════════════════════════════════════════════ */
+const Music = (()=>{
+  let ctx, master, current, muted=false, vol=.55, unlocked=false, timer=null;
+  const names={s1:'rain piano',s2:'rain piano',s3:'soft hopeful piano',s3b:'soft hopeful piano',s4:'soft hopeful piano','s-montage':'soft hopeful piano',s5:'emotional piano','s-choice':'heartbeat ambience','s-yes':'uplifting orchestra','s-no':'lonely piano','s-letter':'peaceful piano','s-credits':'peaceful piano'};
+  const params={
+    'rain piano':{notes:[261,329,392,493],rate:1.9,wave:'sine',pad:90}, 'soft hopeful piano':{notes:[293,369,440,554],rate:1.55,wave:'triangle',pad:120},
+    'emotional piano':{notes:[220,277,330,415,494],rate:1.35,wave:'triangle',pad:80}, 'heartbeat ambience':{notes:[55],rate:1.0,wave:'sine',pad:30},
+    'uplifting orchestra':{notes:[261,329,392,523,659],rate:.82,wave:'sawtooth',pad:170}, 'lonely piano':{notes:[196,247,294,370],rate:2.25,wave:'sine',pad:60},
+    'peaceful piano':{notes:[261,349,440,523],rate:1.8,wave:'triangle',pad:100}
+  };
+  function init(){ if(ctx) return; ctx=new (window.AudioContext||window.webkitAudioContext)(); master=ctx.createGain(); master.gain.value=muted?0:vol; master.connect(ctx.destination); }
+  function envGain(g,t,a=.03,d=1.4,peak=.16){ g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(peak,t+a); g.gain.exponentialRampToValueAtTime(.0001,t+d); }
+  function note(freq,dur=1.4,peak=.12,wave='triangle'){ if(!ctx) return; const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter(); o.type=wave; o.frequency.value=freq; f.type='lowpass'; f.frequency.value=900; o.connect(f); f.connect(g); g.connect(current||master); envGain(g,t,.04,dur,peak); o.start(t); o.stop(t+dur+.05); }
+  function loop(track){ clearInterval(timer); if(!ctx||!current) return; const P=params[track]||params['peaceful piano']; let i=0; timer=setInterval(()=>{ if(track==='heartbeat ambience'){ beat(.45); return; } const n=P.notes[i++%P.notes.length]*(Math.random()<.18?2:1); note(n, P.rate*1.15, track==='uplifting orchestra'?.09:.13, P.wave); if(P.pad && Math.random()<.45) note(n/2, P.rate*2.2, .035, 'sine'); }, P.rate*1000); }
+  function setScene(id){ const track=names[id]||'peaceful piano'; document.getElementById('trackName').textContent=track; if(!unlocked||!ctx) return; const next=ctx.createGain(); next.gain.value=0; next.connect(master); const old=current; current=next; const t=ctx.currentTime; next.gain.linearRampToValueAtTime(1,t+1.2); if(old){ old.gain.cancelScheduledValues(t); old.gain.setValueAtTime(old.gain.value,t); old.gain.linearRampToValueAtTime(0,t+1.2); setTimeout(()=>old.disconnect(),1400); } loop(track); }
+  function unlock(){ init(); ctx.resume(); unlocked=true; document.getElementById('musicPanel').classList.add('on'); setScene(G.scene); }
+  function setVol(v){ vol=v; if(master) master.gain.value=muted?0:vol; }
+  function toggle(){ muted=!muted; if(master) master.gain.value=muted?0:vol; document.getElementById('muteBtn').textContent=muted?'ø':'♪'; document.getElementById('mbtn').textContent=muted?'ø':'♫'; }
+  function beat(power=1){ if(!ctx) return; const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(58,t); o.frequency.exponentialRampToValueAtTime(42,t+.18); o.connect(g); g.connect(master); envGain(g,t,.01,.24,.18*power); o.start(t); o.stop(t+.28); setTimeout(()=>note(42,.16,.07*power,'sine'),170); }
+  return {unlock,setScene,setVol,toggle,beat};
+})();
+['pointerdown','keydown','touchstart','click'].forEach(ev=>window.addEventListener(ev,Music.unlock,{once:true,passive:true}));
+document.getElementById('mbtn').addEventListener('click',Music.toggle);document.getElementById('muteBtn').addEventListener('click',Music.toggle);document.getElementById('vol').addEventListener('input',e=>Music.setVol(e.target.value/100));
+
+function runMontage(){
+  const lines=['Before he spoke...','He remembered.','The first time she smiled.','The first time she laughed.','The day she stopped crying.','The day she started believing in herself.'];
+  const box=document.getElementById('memoryLines'); box.innerHTML='';
+  lines.forEach((txt,i)=>{ const d=document.createElement('div'); d.className='memory-line'; d.textContent=txt; box.appendChild(d); setTimeout(()=>{ [...box.children].forEach(c=>c.classList.add('dim')); d.classList.remove('dim'); d.classList.add('show'); }, 650+i*1450); });
+  setTimeout(()=>go('s5'), 9800);
+}
+function runLetter(){
+  const text=`Dear You,\n\nThank you for allowing me\nto walk beside your pain.\n\nWhether you chose me\nor not...\n\nI will always be grateful\nthat I met you.\n\nYou taught me that love\nis not always about being chosen.\n\nSometimes,\nit is simply about caring.\n\nAnd if our paths never cross again,\n\nI hope life is kind to you.\n\n— Him`;
+  const ink=document.getElementById('letterInk'); ink.innerHTML=''; document.getElementById('letterNext').style.display='none';
+  [...text].forEach((ch,i)=>{ const sp=document.createElement('span'); sp.textContent=ch; ink.appendChild(sp); setTimeout(()=>sp.classList.add('show'), 40+i*28); });
+  setTimeout(()=>document.getElementById('letterNext').style.display='inline-block', Math.min(9000, text.length*28+900));
+}
 
 /* ════════════════════════════════════════════
    LOADING  — fixed: single clear, guaranteed proceed
