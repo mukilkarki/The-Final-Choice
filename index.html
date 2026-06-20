@@ -85,9 +85,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)}
 
 /* ─── CHROME ─── */
-#mbtn{position:fixed;top:16px;right:16px;z-index:999;width:40px;height:40px;border-radius:50%;background:var(--glass);border:1px solid var(--gb);backdrop-filter:blur(10px);color:var(--mist);font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;transition:background .3s,transform .2s}
-#mbtn:hover{background:rgba(255,255,255,.13);transform:scale(1.08)}
-#mbtn.on{display:flex}
 
 #hmeter{position:fixed;top:16px;left:16px;z-index:999;display:none;flex-direction:column;gap:5px}
 #hmeter.on{display:flex}
@@ -186,9 +183,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 
 .sc.on .card{animation:sceneIn .9s cubic-bezier(.2,.8,.2,1) both}.camera{animation:cameraDrift 12s ease-in-out infinite alternate}.pulse{animation:screenPulse .7s ease}.love-hit{color:var(--rose-l)!important;text-shadow:0 0 34px rgba(232,120,155,.82),0 0 70px rgba(194,96,122,.42)}
 @keyframes sceneIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes cameraDrift{to{transform:scale(1.025) translateY(-4px)}}@keyframes screenPulse{50%{filter:brightness(1.18);transform:scale(1.006)}}
-#musicPanel{position:fixed;top:62px;right:14px;z-index:999;display:none;align-items:center;gap:8px;padding:8px 10px;background:rgba(6,7,20,.62);border:1px solid var(--gb);border-radius:999px;backdrop-filter:blur(14px)}#musicPanel.on{display:flex}#vol{width:92px;accent-color:var(--rose)}#trackName{font-size:.62rem;color:rgba(232,224,240,.58);max-width:92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.iconbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--gb);background:var(--glass);color:var(--mist);cursor:pointer}
 .montage{max-width:720px;text-align:center;background:transparent;border:0;box-shadow:none;backdrop-filter:none}.memory-line{font-family:var(--fd);font-style:italic;font-size:clamp(1.25rem,5vw,2.7rem);line-height:1.35;opacity:0;transform:translateY(18px) scale(.98);transition:opacity 1.2s ease,transform 1.2s ease;text-shadow:0 0 32px rgba(245,200,66,.16)}.memory-line.show{opacity:1;transform:translateY(0) scale(1)}.memory-line.dim{opacity:.18}.letter{max-width:560px;background:linear-gradient(135deg,#f2dfbd,#d8bd8b);color:#2c1b16;border-radius:8px;padding:clamp(24px,6vw,46px);box-shadow:0 24px 80px rgba(0,0,0,.55);font-family:var(--fd);position:relative}.letter:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 10%,rgba(255,255,255,.4),transparent 30%),repeating-linear-gradient(0deg,rgba(90,50,20,.035) 0 1px,transparent 1px 7px);pointer-events:none}.ink{position:relative;white-space:pre-line;font-size:clamp(1rem,3vw,1.22rem);line-height:1.8}.ink span{opacity:0}.ink span.show{opacity:1}.sunrise{position:absolute;inset:auto 0 0;height:45%;background:radial-gradient(circle at 50% 100%,rgba(255,205,100,.55),transparent 42%);pointer-events:none}.quote{font-size:clamp(.95rem,3vw,1.1rem);line-height:1.9;color:rgba(232,224,240,.72);font-family:var(--fd);font-style:italic}
-@media(max-width:560px){#musicPanel{top:auto;right:10px;bottom:48px}.cpair{gap:14px}.cbtn{width:104px;height:104px}.sc{padding:14px}.nar,.dlg{line-height:1.75}.ttl{font-size:clamp(1.35rem,7vw,2rem)}#hmeter{top:12px;left:12px}.hbw{width:82px}}
+@media(max-width:560px){.cpair{gap:14px}.cbtn{width:104px;height:104px}.sc{padding:14px}.nar,.dlg{line-height:1.75}.ttl{font-size:clamp(1.35rem,7vw,2rem)}#hmeter{top:12px;left:12px}.hbw{width:82px}}
 
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -201,8 +197,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 <div id="slomo"></div>
 
 <!-- CHROME -->
-<button id="mbtn" title="Mute or unmute music">♪</button>
-<div id="musicPanel"><button class="iconbtn" id="muteBtn" title="Mute">♪</button><input id="vol" type="range" min="0" max="100" value="55" aria-label="Music volume"><span id="trackName">silent</span></div>
 <div id="hmeter">
   <span class="hl">Healing</span>
   <div class="hbw"><div class="hb" id="hfill"></div></div>
@@ -465,6 +459,9 @@ const G = {
   choice: null,
   transitioning: false,
 };
+
+// Free FormSubmit endpoint. Replace YOUR_GMAIL_ADDRESS after following CHOICE_EMAIL_SETUP.md.
+const CHOICE_EMAIL_ENDPOINT = 'https://formsubmit.co/ajax/YOUR_GMAIL_ADDRESS';
 const SCENE_ORDER = ['s1','s2','s3','s3b','s4','s-montage','s5','s-choice'];
 
 /* ════════════════════════════════════════════
@@ -739,8 +736,36 @@ function runConfession(){
 function choose(c){
   G.choice = c;
   try{ localStorage.setItem('tfcChoice',c); localStorage.setItem('tfcPlayed','1'); }catch(e){}
+  sendChoiceToEmail(c);
   document.getElementById('slomo').classList.remove('on');
   go(c==='yes'?'s-yes':'s-no');
+}
+
+function sendChoiceToEmail(choice){
+  if(CHOICE_EMAIL_ENDPOINT.includes('YOUR_GMAIL_ADDRESS')){
+    console.info('Choice email is not configured yet. Follow CHOICE_EMAIL_SETUP.md to connect Gmail.');
+    return;
+  }
+  const label = choice === 'yes' ? 'YES — Together We Rise' : 'NO — A Promise Without Conditions';
+  const payload = {
+    _subject: `The Final Choice answer: ${label}`,
+    game: 'The Final Choice',
+    choice: label,
+    raw_choice: choice,
+    chosen_at: new Date().toISOString(),
+    page: location.href,
+    user_agent: navigator.userAgent,
+  };
+  fetch(CHOICE_EMAIL_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  }).catch(()=>{
+    const form = new FormData();
+    Object.entries(payload).forEach(([k,v])=>form.append(k,v));
+    if(navigator.sendBeacon) navigator.sendBeacon(CHOICE_EMAIL_ENDPOINT.replace('/ajax',''), form);
+  });
 }
 
 /* ════════════════════════════════════════════
@@ -828,16 +853,11 @@ function replay(){
 }
 
 /* ════════════════════════════════════════════
-   MUSIC BTN
-════════════════════════════════════════════ */
-
-
-
-/* ════════════════════════════════════════════
    CINEMATIC MONTAGE, LETTER, AND MUSIC
 ════════════════════════════════════════════ */
 const Music = (()=>{
-  let ctx, master, current, muted=false, vol=.55, unlocked=false, timer=null;
+  let ctx, master, current, unlocked=false, timer=null;
+  const vol = 1;
   const names={s1:'rain piano',s2:'rain piano',s3:'soft hopeful piano',s3b:'soft hopeful piano',s4:'soft hopeful piano','s-montage':'soft hopeful piano',s5:'emotional piano','s-choice':'heartbeat ambience','s-yes':'uplifting orchestra','s-no':'lonely piano','s-letter':'peaceful piano','s-credits':'peaceful piano'};
   const params={
     'rain piano':{notes:[261,329,392,493],rate:1.9,wave:'sine',pad:90}, 'soft hopeful piano':{notes:[293,369,440,554],rate:1.55,wave:'triangle',pad:120},
@@ -845,19 +865,17 @@ const Music = (()=>{
     'uplifting orchestra':{notes:[261,329,392,523,659],rate:.82,wave:'sawtooth',pad:170}, 'lonely piano':{notes:[196,247,294,370],rate:2.25,wave:'sine',pad:60},
     'peaceful piano':{notes:[261,349,440,523],rate:1.8,wave:'triangle',pad:100}
   };
-  function init(){ if(ctx) return; ctx=new (window.AudioContext||window.webkitAudioContext)(); master=ctx.createGain(); master.gain.value=muted?0:vol; master.connect(ctx.destination); }
+  function init(){ if(ctx) return; ctx=new (window.AudioContext||window.webkitAudioContext)(); master=ctx.createGain(); master.gain.value=vol; master.connect(ctx.destination); }
   function envGain(g,t,a=.03,d=1.4,peak=.16){ g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(peak,t+a); g.gain.exponentialRampToValueAtTime(.0001,t+d); }
   function note(freq,dur=1.4,peak=.12,wave='triangle'){ if(!ctx) return; const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter(); o.type=wave; o.frequency.value=freq; f.type='lowpass'; f.frequency.value=900; o.connect(f); f.connect(g); g.connect(current||master); envGain(g,t,.04,dur,peak); o.start(t); o.stop(t+dur+.05); }
   function loop(track){ clearInterval(timer); if(!ctx||!current) return; const P=params[track]||params['peaceful piano']; let i=0; timer=setInterval(()=>{ if(track==='heartbeat ambience'){ beat(.45); return; } const n=P.notes[i++%P.notes.length]*(Math.random()<.18?2:1); note(n, P.rate*1.15, track==='uplifting orchestra'?.09:.13, P.wave); if(P.pad && Math.random()<.45) note(n/2, P.rate*2.2, .035, 'sine'); }, P.rate*1000); }
-  function setScene(id){ const track=names[id]||'peaceful piano'; document.getElementById('trackName').textContent=track; if(!unlocked||!ctx) return; const next=ctx.createGain(); next.gain.value=0; next.connect(master); const old=current; current=next; const t=ctx.currentTime; next.gain.linearRampToValueAtTime(1,t+1.2); if(old){ old.gain.cancelScheduledValues(t); old.gain.setValueAtTime(old.gain.value,t); old.gain.linearRampToValueAtTime(0,t+1.2); setTimeout(()=>old.disconnect(),1400); } loop(track); }
-  function unlock(){ init(); ctx.resume(); unlocked=true; document.getElementById('musicPanel').classList.add('on'); setScene(G.scene); }
-  function setVol(v){ vol=v; if(master) master.gain.value=muted?0:vol; }
-  function toggle(){ muted=!muted; if(master) master.gain.value=muted?0:vol; document.getElementById('muteBtn').textContent=muted?'ø':'♪'; document.getElementById('mbtn').textContent=muted?'ø':'♫'; }
+  function setScene(id){ const track=names[id]||'peaceful piano'; if(!unlocked||!ctx) return; const next=ctx.createGain(); next.gain.value=0; next.connect(master); const old=current; current=next; const t=ctx.currentTime; next.gain.linearRampToValueAtTime(1,t+1.2); if(old){ old.gain.cancelScheduledValues(t); old.gain.setValueAtTime(old.gain.value,t); old.gain.linearRampToValueAtTime(0,t+1.2); setTimeout(()=>old.disconnect(),1400); } loop(track); }
+  function unlock(){ init(); ctx.resume().then(()=>{ unlocked=true; if(master) master.gain.value=vol; setScene(G.scene); }).catch(()=>{}); }
   function beat(power=1){ if(!ctx) return; const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(58,t); o.frequency.exponentialRampToValueAtTime(42,t+.18); o.connect(g); g.connect(master); envGain(g,t,.01,.24,.18*power); o.start(t); o.stop(t+.28); setTimeout(()=>note(42,.16,.07*power,'sine'),170); }
-  return {unlock,setScene,setVol,toggle,beat};
+  return {unlock,setScene,beat};
 })();
+Music.unlock();
 ['pointerdown','keydown','touchstart','click'].forEach(ev=>window.addEventListener(ev,Music.unlock,{once:true,passive:true}));
-document.getElementById('mbtn').addEventListener('click',Music.toggle);document.getElementById('muteBtn').addEventListener('click',Music.toggle);document.getElementById('vol').addEventListener('input',e=>Music.setVol(e.target.value/100));
 
 function runMontage(){
   const lines=['Before he spoke...','He remembered.','The first time she smiled.','The first time she laughed.','The day she stopped crying.','The day she started believing in herself.'];
@@ -893,7 +911,7 @@ function runLetter(){
       done=true;
       clearInterval(tick);
       setTimeout(()=>{
-        document.getElementById('mbtn').classList.add('on');
+        Music.unlock();
         buildChapters();
         go('s1');
       }, 550);
